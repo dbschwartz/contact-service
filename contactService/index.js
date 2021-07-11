@@ -9,6 +9,7 @@ export default class {
     this.arr = [];
     updates.on("add", async (id) => {
       const newContact = await service.getById(id);
+
       this.arr.push(newContact);
     });
     updates.on("change", async (id, field, value) => {
@@ -47,8 +48,7 @@ export default class {
         addressLine2.includes(query) ||
         addressLine3.includes(query) ||
         city.includes(query) ||
-        state.includes(query) ||
-        id.includes(query)
+        state.includes(query)
     );
     //onsole.log(results);
     return results;
