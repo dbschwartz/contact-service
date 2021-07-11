@@ -9,7 +9,10 @@ export default class {
     this.arr = [];
     updates.on("add", async (id) => {
       const newContact = await service.getById(id);
-
+      if (newContact.emailAddress) {
+        newContact.primaryEmail = newContact.emailAddress;
+        newContact.email = newContact.emailAddress;
+      }
       this.arr.push(newContact);
     });
     updates.on("change", async (id, field, value) => {
@@ -23,8 +26,20 @@ export default class {
     });
   }
 
+  phoneFormatter(primary, secondary) {
+    const phoneArr = [];
+    const phoneRegex = /(\+*\d{1,})*([ |\(])*(\d{3})[^\d]*(\d{3})[^\d]*(\d{4})/;
+    for (let number of arguments) {
+      if (number) {
+        const temp = phoneRegex.exec(number).slice(3);
+        phoneArr.push(`(${temp[0]}) ${temp[1]}-${temp[2]}`);
+      }
+    }
+    return phoneArr;
+  }
+
   search(query) {
-    const results = this.arr.filter(
+    let results = this.arr.filter(
       ({
         firstName,
         lastName,
@@ -49,8 +64,15 @@ export default class {
         addressLine3.includes(query) ||
         city.includes(query) ||
         state.includes(query)
-    );
-    //onsole.log(results);
+    ).map(unformattedContact => (
+      {
+           name: `${unformattedContact.nickName ? unformattedContact.nickName : unformattedContact.firstName} ${unformattedContact.lastName}`,
+           phones: this.phoneFormatter(unformattedContact.primaryPhoneNumber, unformattedContact.secondaryPhoneNumber),
+           email: unformattedContact.primaryEmail,
+           address: unformattedContact.addressLine1.concat(unformattedContact.addressLine2, unformattedContact.addressLine3),
+           id: unformattedContact.id
+       })
+   )
     return results;
   }
 }
