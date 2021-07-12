@@ -39,6 +39,7 @@ export default class {
   }
 
   search(query) {
+    query = query.replace(/[^A-Z0-9]/ig, '');
     let results = this.arr.filter(
       ({
         firstName,
@@ -55,8 +56,8 @@ export default class {
       }) =>
         firstName.includes(query) ||
         lastName.includes(query) ||
-        primaryPhoneNumber.includes(query) ||
-        secondaryPhoneNumber.includes(query) ||
+        primaryPhoneNumber.replace(/[^0-9]/g, '').includes(query) ||
+        secondaryPhoneNumber.replace(/[^0-9]/g, '').includes(query) ||
         primaryEmail.includes(query) ||
         secondaryEmail.includes(query) ||
         addressLine1.includes(query) ||
@@ -64,7 +65,7 @@ export default class {
         addressLine3.includes(query) ||
         city.includes(query) ||
         state.includes(query)
-    ).map(unformattedContact => (
+        ).map(unformattedContact => (
       {
            name: `${unformattedContact.nickName ? unformattedContact.nickName : unformattedContact.firstName} ${unformattedContact.lastName}`,
            phones: this.phoneFormatter(unformattedContact.primaryPhoneNumber, unformattedContact.secondaryPhoneNumber),
