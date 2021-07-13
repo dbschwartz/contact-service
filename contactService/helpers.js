@@ -3,6 +3,8 @@ function phoneFormatter (primary, secondary) {
   const phoneRegex = /(\+*\d{1,})*([ |\(])*(\d{3})[^\d]*(\d{3})[^\d]*(\d{4})/;
   for (let number of arguments) {
     if (number) {
+     /* phone number is in 3rd, 4th, and 5th capture group so slicing last three indexes
+        in order to format */
       const temp = phoneRegex.exec(number).slice(3);
       phoneArr.push(`(${temp[0]}) ${temp[1]}-${temp[2]}`);
     }
@@ -23,22 +25,26 @@ const findQueryInContact = (
     addressLine2,
     addressLine3,
     city,
-    state
+    state,
+    zipCode,
+    id
   },
   query
 ) =>
   firstName.includes(query) ||
   lastName.includes(query) ||
   nickName.includes(query) ||
-  primaryPhoneNumber.replace(/[^0-9]/g, "").includes(query) ||
-  secondaryPhoneNumber.replace(/[^0-9]/g, "").includes(query) ||
+  primaryPhoneNumber.replace(/[^0-9]/g, "").includes(query) || //only looking at digits of phone number
+  secondaryPhoneNumber.replace(/[^0-9]/g, "").includes(query) || //only looking at digits of phone number
   primaryEmail.includes(query) ||
   secondaryEmail.includes(query) ||
   addressLine1.includes(query) ||
   addressLine2.includes(query) ||
   addressLine3.includes(query) ||
   city.includes(query) ||
-  state.includes(query);
+  state.includes(query) ||
+  zipCode.includes(query) ||
+  id.includes(query);
 
 const resultsFormatter = (unformattedContact) => ({
   name: `${
