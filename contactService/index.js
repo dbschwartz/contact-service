@@ -4,6 +4,8 @@
 // updates and service, the 2 arguments to the constructor
 // Feel free to add files as necessary
 
+import { findQueryInContact, resultsFormatter } from './helpers'
+
 export default class {
   constructor(updates, service) {
     this.arr = [];
@@ -26,54 +28,21 @@ export default class {
     });
   }
 
-  phoneFormatter(primary, secondary) {
-    const phoneArr = [];
-    const phoneRegex = /(\+*\d{1,})*([ |\(])*(\d{3})[^\d]*(\d{3})[^\d]*(\d{4})/;
-    for (let number of arguments) {
-      if (number) {
-        const temp = phoneRegex.exec(number).slice(3);
-        phoneArr.push(`(${temp[0]}) ${temp[1]}-${temp[2]}`);
-      }
-    }
-    return phoneArr;
-  }
 
   search(query) {
-    query = query.replace(/[^A-Z0-9]/ig, '');
-    let results = this.arr.filter(
-      ({
-        firstName,
-        lastName,
-        primaryPhoneNumber,
-        secondaryPhoneNumber,
-        primaryEmail,
-        secondaryEmail,
-        addressLine1,
-        addressLine2,
-        addressLine3,
-        city,
-        state,
-      }) =>
-        firstName.includes(query) ||
-        lastName.includes(query) ||
-        primaryPhoneNumber.replace(/[^0-9]/g, '').includes(query) ||
-        secondaryPhoneNumber.replace(/[^0-9]/g, '').includes(query) ||
-        primaryEmail.includes(query) ||
-        secondaryEmail.includes(query) ||
-        addressLine1.includes(query) ||
-        addressLine2.includes(query) ||
-        addressLine3.includes(query) ||
-        city.includes(query) ||
-        state.includes(query)
-        ).map(unformattedContact => (
-      {
-           name: `${unformattedContact.nickName ? unformattedContact.nickName : unformattedContact.firstName} ${unformattedContact.lastName}`,
-           phones: this.phoneFormatter(unformattedContact.primaryPhoneNumber, unformattedContact.secondaryPhoneNumber),
-           email: unformattedContact.primaryEmail,
-           address: unformattedContact.addressLine1.concat(unformattedContact.addressLine2, unformattedContact.addressLine3),
-           id: unformattedContact.id
-       })
-   )
-    return results;
+          //splitting query string into iterable array and also removing special characters;
+          const queries = query.split(' ').map(searchTerm => searchTerm.replace(/[^A-Z0-9]/ig, ''));
+          const results = this.arr.filter(contact => {
+              let isMatch = true;
+              //this loop ensures that the contact matches each part of the query string
+              for (let i = 0; i < queries.length; i++) {
+                  const queryToFind = queries[i]
+                  if (!findQueryInContact(contact, queryToFind)) {
+                      isMatch = false
+                  }
+              }
+              return isMatch;
+          })
+          return results.map(resultsFormatter)
   }
 }
